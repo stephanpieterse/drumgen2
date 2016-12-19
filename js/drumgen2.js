@@ -193,6 +193,7 @@ var DG = window.drumgen2;
         var newNotes = [];
         noteName = noteName || "c/5";
         var j = 0;
+        var step = 0;
 
         var notePattern = patterns.notePattern || DG.straightPattern(25, "1");
         var rudimentPattern = patterns.rudimentPattern || DG.straightPattern(25, "0");
@@ -202,10 +203,32 @@ var DG = window.drumgen2;
         for (j = 0; j <= notePattern.length; j++) {
             switch (notePattern[j]) {
             case '0':
-                newNotes.push(DG.VFUtils.newBasicNote(noteName, noteDuration, true));
+                var restDuration = noteDuration;
+                try {
+                    step = 1;
+                    while (notePattern[j + step] === '0' && restDuration > 1) {
+                        restDuration = restDuration / 2;
+                        step += 1;
+                        j += 1;
+                    }
+                } catch (e) {
+
+                }
+                newNotes.push(DG.VFUtils.newBasicNote(noteName, restDuration, true));
                 break;
             case '1':
-                var finPat = DG.VFUtils.newBasicNote(noteName, noteDuration);
+                var patDuration = noteDuration;
+                try {
+                    step = 1;
+                    while (notePattern[j + step] === '0' && patDuration > 1) {
+                        patDuration = patDuration / 2;
+                        step += 1;
+                        j += 1;
+                    }
+                } catch (e) {
+
+                }
+                var finPat = DG.VFUtils.newBasicNote(noteName, patDuration);
                 if (DG.accents && accGen.next() === '1') {
                     finPat = finPat.addArticulation(0, DG.VFUtils.newArticulation("a>"));
                 }
@@ -303,7 +326,7 @@ var DG = window.drumgen2;
 
         DG.staves = [];
         for (var s = 0; s < totalStaves; s++) {
-            var tmpStave = new VF.Stave(10, 75*(s), 700);
+            var tmpStave = new VF.Stave(10, 65 * (s), 700);
 
             tmpStave.addClef("percussion").addTimeSignature(DG.patternLength + "/" + DG.signatureDenominator);
 
@@ -324,23 +347,11 @@ var DG = window.drumgen2;
         // var stave = new VF.Stave(10, 40, 700);
         // DG.stave = stave;
 
-        // stave.addClef("percussion").addTimeSignature(DG.signatureNumerator + "/" + DG.signatureDenominator);
-        // stave.addClef("percussion").addTimeSignature(DG.patternLength + "/" + DG.signatureDenominator);
-        // 
-        // stave.setConfigForLines([{
-        //     visible: false
-        // }, {
-        //     visible: false
-        // }, {
-        //     visible: true
-        // }, {
-        //     visible: false
-        // }, {
-        //     visible: false
-        // }]).setContext(context).draw();
-
         var voices = [];
         var notes = [];
+        var curStave = 0;
+        var beams;
+        var noteTimeVal = 16;
 
         switch (DG.mode) {
         case DG.MODES.RUDIMENTS:
@@ -355,47 +366,89 @@ var DG = window.drumgen2;
 
             break;
 
+
         case DG.MODES.PATTERNS:
             var n = 0;
             var patSet;
             if (DG.limbsActive[DG.LIMBS.RIGHTHAND]) {
                 patSet = DG.getNewPatternSet();
-                notes = DG.notesFromPattern(patSet, "g/5/x2", 4);
+                notes = DG.notesFromPattern(patSet, "b/4/x2", noteTimeVal);
                 DG.fillPattern(patSet, "g/5/x2", 4);
 
                 voices.push(new VF.Voice({
                     num_beats: DG.patternLength,
                     beat_value: 4
                 }).addTickables(notes));
+
+                beams = VF.Beam.generateBeams(notes, {
+                    // beam_rests: true,
+                    // beam_middle_only: true
+                });
+
+                VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
+                beams.forEach(function (b) {
+                    b.setContext(context).draw();
+                });
+                curStave += 1;
             }
             if (DG.limbsActive[DG.LIMBS.LEFTHAND]) {
                 patSet = DG.getNewPatternSet();
-                notes = DG.notesFromPattern(patSet, "c/5", 4);
+                notes = DG.notesFromPattern(patSet, "b/4", noteTimeVal);
                 DG.fillPattern(patSet, "c/5", 4);
                 voices.push(new VF.Voice({
                     num_beats: DG.patternLength,
                     beat_value: 4
                 }).addTickables(notes));
+                beams = VF.Beam.generateBeams(notes, {
+                    // beam_rests: true,
+                    // beam_middle_only: true
+                });
+
+                VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
+                beams.forEach(function (b) {
+                    b.setContext(context).draw();
+                });
+                curStave += 1;
             }
             if (DG.limbsActive[DG.LIMBS.RIGHTFOOT]) {
                 patSet = DG.getNewPatternSet();
-                notes = DG.notesFromPattern(patSet, "c/4", 4);
+                notes = DG.notesFromPattern(patSet, "b/4", noteTimeVal);
                 DG.fillPattern(patSet, "c/4", 4);
 
                 voices.push(new VF.Voice({
                     num_beats: DG.patternLength,
                     beat_value: 4
                 }).addTickables(notes));
+                beams = VF.Beam.generateBeams(notes, {
+                    // beam_rests: true,
+                    // beam_middle_only: true
+                });
+
+                VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
+                beams.forEach(function (b) {
+                    b.setContext(context).draw();
+                });
+                curStave += 1;
             }
             if (DG.limbsActive[DG.LIMBS.LEFTFOOT]) {
                 patSet = DG.getNewPatternSet();
-                notes = DG.notesFromPattern(patSet, "b/3/x2", 4);
+                notes = DG.notesFromPattern(patSet, "b/4/x2", noteTimeVal);
                 DG.fillPattern(patSet, "b/3/x2", 4);
 
                 voices.push(new VF.Voice({
                     num_beats: DG.patternLength,
                     beat_value: 4
                 }).addTickables(notes));
+                beams = VF.Beam.generateBeams(notes, {
+                    // beam_rests: true,
+                    // beam_middle_only: true
+                });
+
+                VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
+                beams.forEach(function (b) {
+                    b.setContext(context).draw();
+                });
+                curStave += 1;
             }
             break;
         }
@@ -412,19 +465,6 @@ var DG = window.drumgen2;
         //   v.draw(context, stave);
         // });
 
-        var notesToDraw = DG.getConsolidatedVoice(16);
-
-        var beams = VF.Beam.generateBeams(notesToDraw, {
-            beam_rests: true,
-            beam_middle_only: true
-        });
-
-        for(var v in DG.staves){
-          VF.Formatter.FormatAndDraw(context, DG.staves[v], notesToDraw);
-          beams.forEach(function (b) {
-              b.setContext(context).draw();
-          });
-        }
         // VF.Formatter.FormatAndDraw(context, stave, notesToDraw);
         // beams.forEach(function (b) {
         //     b.setContext(context).draw();

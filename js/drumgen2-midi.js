@@ -47,7 +47,7 @@ DG.playAll = function () {
             } else {
                 velocity = 75;
             }
-            MIDI.setVolume(0, 127);
+            MIDI.setVolume(0, velocity);
             MIDI.chordOn(0, nChord, velocity, delay);
             MIDI.chordOff(0, nChord, delay + 0.4);
             // (function(i, notes){

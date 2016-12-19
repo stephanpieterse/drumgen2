@@ -1,4 +1,4 @@
-(function (analytics) {
+(function (DG, analytics) {
     "use strict";
 
     var demoObject = {
@@ -36,15 +36,35 @@
         
         $.post(serverUrl, dataset).done(function (retdata) {
             console.log(retdata);
-        }).error(function (errdata) {
+        }).catch(function (errdata) {
             console.log(errdata);
         });
     };
 
     analytics.init = function () {
         analytics.getLocalUserId();
+        
+        
+        analytics.send({action: "PageLoad"});
+        
+        $('#playButton').click(function(){
+          var data = {};
+          data.action = "Play";
+        
+          analytics.send(data);
+        });
+        
+        $('#generateButton').click(function(){
+          var data = {};
+          data.action = "Generate";
+          data.mode = DG.mode;
+          data.limbs = DG.limbsActive;
+          data.patLen = DG.patternLength;
+          data.accents = DG.accents;
+          analytics.send(data);
+        });
     };
 
     analytics.init();
 
-})(window.drumgen2.analytics = window.drumgen2.analytics || {});
+})(window.drumgen2, window.drumgen2.analytics = window.drumgen2.analytics || {});
