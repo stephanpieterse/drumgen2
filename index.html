@@ -1,0 +1,81 @@
+<html>
+
+<head>
+    <title>DrumGen2</title>
+
+    <link href="css/jquery-ui.min.css" rel="stylesheet" />
+    <link href="css/jquery-ui.theme.min.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="js/vexflow-min.js"></script>
+    <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+
+    <script src="js/shim/Base64.js" type="text/javascript"></script>
+    <script src="js/shim/Base64binary.js" type="text/javascript"></script>
+    <script src="js/shim/WebAudioAPI.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="js/MIDI.min.js"></script>
+
+</head>
+
+<body class="widget">
+    <div id="mainstave">
+
+    </div>
+
+    <div class="button" onclick="DG.drawChart()">
+        Generate New
+    </div>
+    <div class="button" id="playButton" style="display: none;" onclick="DG.playAll()">
+        Play
+    </div>
+
+    <form id="DGoptions">
+        <!-- <label for="opt_rand_sig">
+    <input type="checkbox" id="opt_rand_sig" /> Random Signature
+    </label> -->
+        <label for="opt_accents">
+    <input onclick="DG.switchAccents()" type="checkbox" id="opt_accents" /> Add Accents
+    </label>
+        <label for="opt_pattern_length">Pattern length:
+    <input class="spinner" id="opt_pattern_length" name="value" value="8">
+    </label>
+        <label for="opt_tempo">Tempo:
+    <input class="spinner" id="opt_tempo" name="value" value="120">
+    </label>
+    </form>
+
+    <form id="DGmode">
+        <label for="mode_rudiment">
+    <input type="radio" name="dg_mode_radio" id="mode_rudiment" onclick="DG.setMode(DG.MODES.RUDIMENTS)"/>Rudiment Mode
+    </label>
+        <label for="mode_patterns">
+    <input type="radio" name="dg_mode_radio" id="mode_patterns" onclick="DG.setMode(DG.MODES.PATTERNS)"/>Patterns Mode
+    </label>
+
+    </form>
+
+    <form id="DGlimbs">
+        <label for="dg_limb_hright">
+    <input type="checkbox" id="dg_limb_hright" onclick="DG.switchLimb(DG.LIMBS.RIGHTHAND)" checked="checked" />Right Hand
+    </label>
+        <label for="dg_limb_hleft">
+    <input type="checkbox" id="dg_limb_hleft" onclick="DG.switchLimb(DG.LIMBS.LEFTHAND)" checked="checked" />Left Hand
+    </label>
+        <label for="dg_limb_fright">
+    <input type="checkbox" id="dg_limb_fright" onclick="DG.switchLimb(DG.LIMBS.RIGHTFOOT)" checked="checked" />Right Foot
+    </label>
+        <label for="dg_limb_fleft">
+    <input type="checkbox" id="dg_limb_fleft" onclick="DG.switchLimb(DG.LIMBS.LEFTFOOT)" checked="checked" />Left Foot
+    </label>
+
+
+    </form>
+
+    <script type="text/javascript" src="js/drumgen2.js"></script>
+    <script type="text/javascript" src="js/drumgen2-midi.js"></script>
+    <script type="text/javascript" src="js/init-ui.js"></script>
+    <script type="text/javascript" src="js/analytics.js"></script>
+</body>
+
+</html>
