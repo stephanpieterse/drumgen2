@@ -42,9 +42,11 @@ DG.playAll = function () {
             var velocity;
             var delay = n * delays / 1000;
             console.log(delay);
-            if (DG.fullPattern[n][m].accent) {
+            if (DG.fullPattern[n][m].accent === "1") {
+                console.log("is acc");
                 velocity = 125;
             } else {
+                console.log("is not acc");
                 velocity = 75;
             }
             MIDI.setVolume(0, velocity);

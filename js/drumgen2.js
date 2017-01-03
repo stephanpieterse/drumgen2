@@ -195,10 +195,10 @@ var DG = window.drumgen2;
         var j = 0;
         var step = 0;
 
-        var notePattern = patterns.notePattern || DG.straightPattern(25, "1");
-        var rudimentPattern = patterns.rudimentPattern || DG.straightPattern(25, "0");
-        var accentPattern = patterns.accentPattern || DG.straightPattern(25, "0");
-        var accGen = DG.accentGenerator(patterns.accentPattern || DG.straightPattern(25, "0"));
+        var notePattern = patterns.notePattern;
+        var rudimentPattern = patterns.rudimentPattern;
+        var accentPattern = patterns.accentPattern;
+        var accGen = DG.accentGenerator(accentPattern);
 
         for (j = 0; j <= notePattern.length; j++) {
             switch (notePattern[j]) {
@@ -263,10 +263,10 @@ var DG = window.drumgen2;
         noteName = noteName || "c/5";
         var j = 0;
 
-        var notePattern = patterns.notePattern || DG.straightPattern(25, "1");
-        var rudimentPattern = patterns.rudimentPattern || DG.straightPattern(25, "0");
-        var accentPattern = patterns.accentPattern || DG.straightPattern(25, "0");
-        var accGen = DG.accentGenerator(patterns.accentPattern || DG.straightPattern(25, "0"));
+        var notePattern = patterns.notePattern;
+        var rudimentPattern = patterns.rudimentPattern;
+        var accentPattern = patterns.accentPattern;
+        var accGen = DG.accentGenerator(accentPattern);
 
         for (j = 0; j <= notePattern.length; j++) {
             switch (notePattern[j]) {
@@ -302,6 +302,7 @@ var DG = window.drumgen2;
     };
 
     DG.drawChart = function () {
+        var renderSize = 950;
         DG.clearChart();
         var div = document.getElementById("mainstave");
         var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
@@ -313,20 +314,28 @@ var DG = window.drumgen2;
         }
 
         // Configure the rendering context.
-        renderer.resize(800, 400);
+        renderer.resize(renderSize + 25, 400);
         var context = renderer.getContext();
         context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
 
         var totalStaves = 0;
-        for (var l in DG.limbsActive) {
-            if (DG.limbsActive[l]) {
-                totalStaves += 1;
+        switch (DG.mode) {
+        case DG.MODES.RUDIMENTS:
+            totalStaves = 1;
+            break;
+        case DG.MODES.PATTERNS:
+
+            for (var l in DG.limbsActive) {
+                if (DG.limbsActive[l]) {
+                    totalStaves += 1;
+                }
             }
+            break;
         }
 
         DG.staves = [];
         for (var s = 0; s < totalStaves; s++) {
-            var tmpStave = new VF.Stave(10, 65 * (s), 700);
+            var tmpStave = new VF.Stave(10, 95 * (s), renderSize);
 
             tmpStave.addClef("percussion").addTimeSignature(DG.patternLength + "/" + DG.signatureDenominator);
 
@@ -355,8 +364,9 @@ var DG = window.drumgen2;
 
         switch (DG.mode) {
         case DG.MODES.RUDIMENTS:
-            notes = DG.rudimentsFromPattern(DG.getNewPatternSet(), "f/4", 4);
-
+            patSet = DG.getNewPatternSet();
+            notes = DG.rudimentsFromPattern(patSet, "b/4", noteTimeVal);
+            DG.fillPattern(patSet, "c/5", 4);
             voices = [
                 new VF.Voice({
                     num_beats: DG.patternLength,
@@ -364,6 +374,15 @@ var DG = window.drumgen2;
                 }).addTickables(notes)
             ];
 
+            beams = VF.Beam.generateBeams(notes, {
+                // beam_rests: true,
+                // beam_middle_only: true
+            });
+
+            VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
+            beams.forEach(function (b) {
+                b.setContext(context).draw();
+            });
             break;
 
 
