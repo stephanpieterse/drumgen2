@@ -1,34 +1,15 @@
 <html>
 
 <head>
+    <title>DrumGen2</title>
 
-    <!-- Piwik -->
     <script type="text/javascript">
         var _paq = _paq || [];
-        // tracker methods like "setCustomDimension" should be called before "trackPageView"
-        _paq.push(['trackPageView']);
-        _paq.push(['enableLinkTracking']);
-        (function() {
-            var u = "//178.62.52.233/piwik/";
-            _paq.push(['setTrackerUrl', u + 'piwik.php']);
-            _paq.push(['setSiteId', '1']);
-            var d = document,
-                g = d.createElement('script'),
-                s = d.getElementsByTagName('script')[0];
-            g.type = 'text/javascript';
-            g.async = true;
-            g.defer = true;
-            g.src = u + 'piwik.js';
-            s.parentNode.insertBefore(g, s);
-        })();
     </script>
-    <!-- End Piwik Code -->
-    <title>DrumGen2</title>
 
     <meta name="description" content="A browser-based random drum exercise generator.">
     <meta name="author" content="Stephan Pieterse">
     <meta charset="UTF-8">
-
 
     <link href="css/jquery-ui.min.css" rel="stylesheet" />
     <link href="css/jquery-ui.theme.min.css" rel="stylesheet" />
@@ -48,7 +29,7 @@
 
 <body class="widget">
     <h1>DrumGen2</h1>
-
+    <noscript>You are unfortunately going to need to enable javascript, otherwise nothing will work!</noscript>
     <div id="mainstave">
 
     </div>
@@ -109,9 +90,30 @@
     <div class="footer">
         This page makes use of the following projects:<br/>
         <a href="https://github.com/0xfe/vexflow">VexFlow</a><br/>
-        <a href="https://github.com/mudcube/MIDI.js">MIDI.js</a><br/> 
-        Soundfont was taken from <a href="http://www.hammersound.net/hs_soundfonts.html">HammerSound</a><br/>
+        <a href="https://github.com/mudcube/MIDI.js">MIDI.js</a><br/> Soundfont was taken from <a href="http://www.hammersound.net/hs_soundfonts.html">HammerSound</a><br/>
     </div>
+
+    <!-- Piwik -->
+    <script type="text/javascript">
+        // tracker methods like "setCustomDimension" should be called before "trackPageView"
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        _paq.push(['trackAllContentImpressions']);
+        (function() {
+            var u = "//178.62.52.233/piwik/";
+            _paq.push(['setTrackerUrl', u + 'piwik.php']);
+            _paq.push(['setSiteId', '1']);
+            var d = document,
+                g = d.createElement('script'),
+                s = d.getElementsByTagName('script')[0];
+            g.type = 'text/javascript';
+            g.async = true;
+            g.defer = true;
+            g.src = u + 'piwik.js';
+            s.parentNode.insertBefore(g, s);
+        })();
+    </script>
+    <!-- End Piwik Code -->
 </body>
 
 </html>

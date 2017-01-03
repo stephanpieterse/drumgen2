@@ -1,4 +1,4 @@
-/* globals Vex */
+/* globals Vex, _paq */
 var VF = Vex.Flow;
 window.drumgen2 = window.drumgen2 || {};
 var DG = window.drumgen2;
@@ -58,11 +58,11 @@ var DG = window.drumgen2;
 
     DG.tempoAsMS = function () {
         var retVal = DG.tempo / 60;
-        console.log(retVal);
+        // console.log(retVal);
         retVal = 100 / retVal;
-        console.log(retVal);
+        // console.log(retVal);
         retVal = retVal * 10;
-        console.log(retVal);
+        // console.log(retVal);
         return retVal;
     };
 
@@ -71,15 +71,22 @@ var DG = window.drumgen2;
         switch (DG.mode) {
         case DG.MODES.RUDIMENTS:
             $('#DGlimbs').hide();
+            _paq.push(['trackEvent', 'Pattern Generation', 'Switch Mode', 'Rudiments']);
             break;
         case DG.MODES.PATTERNS:
             $('#DGlimbs').show();
+            _paq.push(['trackEvent', 'Pattern Generation', 'Switch Mode', 'Patterns']);
             break;
         }
     };
 
     DG.switchAccents = function () {
         DG.accents = !DG.accents;
+        if (DG.accents) {
+            _paq.push(['trackEvent', 'Pattern Generation', 'Accents', 'On']);
+        } else {
+            _paq.push(['trackEvent', 'Pattern Generation', 'Accents', 'Off']);
+        }
     };
 
     DG.switchLimb = function (limb) {
@@ -155,9 +162,10 @@ var DG = window.drumgen2;
         var newNotes = [];
         noteName = noteName || "c/5";
 
-        var notePattern = patterns.notePattern || DG.straightPattern(25, "1");
-        var rudimentPattern = patterns.rudimentPattern || DG.straightPattern(25, "0");
-        var accentPattern = patterns.accentPattern || DG.straightPattern(25, "0");
+        var notePattern = patterns.notePattern;
+        var rudimentPattern = patterns.rudimentPattern;
+        var accentPattern = patterns.accentPattern;
+        var accGen = DG.accentGenerator(accentPattern);
 
         for (var j = 0; j <= notePattern.length; j++) {
             var rudiAnnot = "";
@@ -178,7 +186,7 @@ var DG = window.drumgen2;
             case '1':
                 var finPat = DG.VFUtils.newBasicNote(noteName, noteDuration);
                 finPat = finPat.addAnnotation(0, DG.VFUtils.newAnnotation(rudiAnnot, 1, j));
-                if (DG.accents && accentPattern[j] === '1') {
+                if (DG.accents && accGen.next() === '1') {
                     finPat = finPat.addArticulation(0, DG.VFUtils.newArticulation("a>"));
                 }
                 newNotes.push(finPat);
@@ -189,11 +197,33 @@ var DG = window.drumgen2;
         return newNotes;
     };
 
+    DG.getRepeatedSubstring = function (lookFor, string) {
+        try {
+            var step = 0;
+            while (string[step] === lookFor) {
+                step += 1;
+            }
+        } catch (e) {
+
+        }
+        return step;
+    };
+
+    DG.getNoteDivisor = function (num) {
+        var i = 2;
+        while ((i > num) === false) {
+            i = i * 2;
+        }
+        i = i / 2;
+        return i;
+    };
+
     DG.notesFromPattern = function (patterns, noteName, noteDuration) {
         var newNotes = [];
         noteName = noteName || "c/5";
         var j = 0;
         var step = 0;
+        var longest;
 
         var notePattern = patterns.notePattern;
         var rudimentPattern = patterns.rudimentPattern;
@@ -204,30 +234,23 @@ var DG = window.drumgen2;
             switch (notePattern[j]) {
             case '0':
                 var restDuration = noteDuration;
-                try {
-                    step = 1;
-                    while (notePattern[j + step] === '0' && restDuration > 1) {
-                        restDuration = restDuration / 2;
-                        step += 1;
-                        j += 1;
-                    }
-                } catch (e) {
+                // if (j === 0 || j % 2 === 0) {
+                //     longest = DG.getRepeatedSubstring('0', notePattern.substr(j, notePattern.length));
+                //     restDuration = restDuration / DG.getNoteDivisor(longest);
+                //     j += DG.getNoteDivisor(longest) - 1;
+                // }
 
-                }
+
                 newNotes.push(DG.VFUtils.newBasicNote(noteName, restDuration, true));
                 break;
             case '1':
                 var patDuration = noteDuration;
-                try {
-                    step = 1;
-                    while (notePattern[j + step] === '0' && patDuration > 1) {
-                        patDuration = patDuration / 2;
-                        step += 1;
-                        j += 1;
-                    }
-                } catch (e) {
+                // if (j === 0 || j % 2 === 0) {
+                //     longest = DG.getRepeatedSubstring('0', notePattern.substr(j + 1, notePattern.length));
+                //     patDuration = patDuration / DG.getNoteDivisor(longest);
+                //     j += DG.getNoteDivisor(longest) - 1;
+                // }
 
-                }
                 var finPat = DG.VFUtils.newBasicNote(noteName, patDuration);
                 if (DG.accents && accGen.next() === '1') {
                     finPat = finPat.addArticulation(0, DG.VFUtils.newArticulation("a>"));
@@ -301,7 +324,31 @@ var DG = window.drumgen2;
         div.innerHTML = "";
     };
 
+    DG.trackDraw = function () {
+        var opts = [];
+
+        opts.push(DG.patternLength);
+
+        if (DG.accents) {
+            opts.push("Accented");
+        }
+
+        switch (DG.mode) {
+        case DG.MODES.RUDIMENTS:
+            opts.push("Rudiment");
+            break;
+        case DG.MODES.PATTERNS:
+            opts.push("Pattern");
+            opts.push(JSON.stringify(DG.limbsActive));
+            break;
+        }
+
+        _paq.push(['trackEvent', 'Pattern Generation', 'Generate New', opts]);
+    };
+
     DG.drawChart = function () {
+        DG.trackDraw();
+
         var renderSize = 950;
         DG.clearChart();
         var div = document.getElementById("mainstave");
@@ -375,8 +422,8 @@ var DG = window.drumgen2;
             ];
 
             beams = VF.Beam.generateBeams(notes, {
-                // beam_rests: true,
-                // beam_middle_only: true
+                beam_rests: true,
+                beam_middle_only: true
             });
 
             VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
@@ -400,8 +447,8 @@ var DG = window.drumgen2;
                 }).addTickables(notes));
 
                 beams = VF.Beam.generateBeams(notes, {
-                    // beam_rests: true,
-                    // beam_middle_only: true
+                    beam_rests: true,
+                    beam_middle_only: true
                 });
 
                 VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
@@ -419,8 +466,8 @@ var DG = window.drumgen2;
                     beat_value: 4
                 }).addTickables(notes));
                 beams = VF.Beam.generateBeams(notes, {
-                    // beam_rests: true,
-                    // beam_middle_only: true
+                    beam_rests: true,
+                    beam_middle_only: true
                 });
 
                 VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
@@ -439,8 +486,8 @@ var DG = window.drumgen2;
                     beat_value: 4
                 }).addTickables(notes));
                 beams = VF.Beam.generateBeams(notes, {
-                    // beam_rests: true,
-                    // beam_middle_only: true
+                    beam_rests: true,
+                    beam_middle_only: true
                 });
 
                 VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
@@ -459,8 +506,8 @@ var DG = window.drumgen2;
                     beat_value: 4
                 }).addTickables(notes));
                 beams = VF.Beam.generateBeams(notes, {
-                    // beam_rests: true,
-                    // beam_middle_only: true
+                    beam_rests: true,
+                    beam_middle_only: true
                 });
 
                 VF.Formatter.FormatAndDraw(context, DG.staves[curStave], notes);
@@ -471,12 +518,12 @@ var DG = window.drumgen2;
             }
             break;
         }
-        console.log(DG.fullPattern);
+        // console.log(DG.fullPattern);
         voices = [new VF.Voice({
             num_beats: DG.patternLength,
             beat_value: 4
         }).addTickables(DG.getConsolidatedVoice(4))];
-        console.log(DG.getConsolidatedVoice(4));
+        // console.log(DG.getConsolidatedVoice(4));
         // var formatter = new VF.Formatter().joinVoices(voices).format(voices, 650);
 
         // Render voices

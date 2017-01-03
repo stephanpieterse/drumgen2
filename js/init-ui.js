@@ -1,34 +1,34 @@
 (function (DG) {
-  "use strict";
+    "use strict";
 
-  $('.widget form input[type="radio"]').checkboxradio();
-  $('.widget form input[type="checkbox"]').checkboxradio();
-  $('.widget .button').button();
-  
-  $('#opt_pattern_length').spinner({
-    spin: function (event, ui) {
-      if (ui.value > 32) {
-        $(this).spinner("value", 1);
-        return false;
-      } else if (ui.value < 1) {
-        $(this).spinner("value", 32);
-        return false;
-      }
-      DG.patternLength = ui.value;
-    }
-  });
-  
-  $('#opt_tempo').spinner({
-    spin: function (event, ui) {
-      if (ui.value > 256) {
-        $(this).spinner("value", 1);
-        return false;
-      } else if (ui.value < 1) {
-        $(this).spinner("value", 256);
-        return false;
-      }
-      DG.tempo = ui.value;
-    }
-  });
+    $('.widget form input[type="radio"]').checkboxradio();
+    $('.widget form input[type="checkbox"]').checkboxradio();
+    $('.widget .button').button();
+
+    $('#opt_pattern_length').spinner({
+        change: function (event, ui) {
+            if ($(this).spinner("value") > 32) {
+                $(this).spinner("value", 32);
+                return false;
+            } else if ($(this).spinner("value") < 1) {
+                $(this).spinner("value", 1);
+                return false;
+            }
+            DG.patternLength = $(this).spinner("value");
+        }
+    });
+
+    $('#opt_tempo').spinner({
+        change: function (event, ui) {
+            if ($(this).spinner("value") > 256) {
+                $(this).spinner("value", 256);
+                return false;
+            } else if ($(this).spinner("value") < 1) {
+                $(this).spinner("value", 1);
+                return false;
+            }
+            DG.tempo = $(this).spinner("value");
+        }
+    });
 
 })(window.drumgen2);

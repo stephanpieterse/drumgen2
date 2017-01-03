@@ -1,4 +1,4 @@
-/* globals MIDI, DG */
+/* globals MIDI, DG, _paq */
 (function (DG) {
     "use strict";
     window.onload = function () {
@@ -6,7 +6,7 @@
             soundfontUrl: "./soundfont/",
             instrument: "acoustic_grand_piano",
             onprogress: function (state, progress) {
-                console.log(state, progress);
+                // console.log(state, progress);
             },
             onsuccess: function () {
                 // playAll();
@@ -18,6 +18,9 @@
 
 DG.playAll = function () {
     "use strict";
+
+    _paq.push(['trackEvent', 'MIDI Section', 'Play Pattern']);
+    
     var delays = DG.tempoAsMS();
     for (var n in DG.fullPattern) {
 
@@ -41,13 +44,10 @@ DG.playAll = function () {
 
             var velocity;
             var delay = n * delays / 1000;
-            console.log(delay);
             if (DG.fullPattern[n][m].accent === "1") {
-                console.log("is acc");
-                velocity = 125;
+                velocity = 123;
             } else {
-                console.log("is not acc");
-                velocity = 75;
+                velocity = 92;
             }
             MIDI.setVolume(0, velocity);
             MIDI.chordOn(0, nChord, velocity, delay);
